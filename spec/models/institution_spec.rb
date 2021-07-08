@@ -49,4 +49,62 @@ RSpec.describe Institution, type: :model do
       end
     end
   end
+
+  describe 'antennes_with_subject_with_no_one' do
+    let(:institution) { create :institution }
+    let!(:antenne) { create :antenne, institution: institution }
+
+    # ça fonctionne pas si je mets 'is_expected machin' mais je ne sais pas pourquoi
+    subject { institution.antennes_with_subject_with_no_one }
+
+    context 'antenne avec un sujet qui a des experts KO' do
+      let!(:subject) { create :subject }
+      let!(:expert) { create :expert_with_users, antenne: antenne }
+      let!(:institution_subject) { create :institution_subject, institution: institution, subject: subject}
+      let!(:expert_subject) { create :expert_subject, expert: expert, institution_subject: institution_subject}
+
+      it 'return empty hash' do
+        expect(institution.antennes_with_subject_with_no_one).to eq({})
+      end
+    end
+
+    context 'antenne avec un sujet qui n’a pas d’expert OK' do
+      let!(:subject) { create :subject }
+      let!(:institution_subject) { create :institution_subject, institution: institution, subject: subject}
+
+      it 'return hash with antennes and subjects' do
+        expect(institution.antennes_with_subject_with_no_one).to eq({ antenne => [subject] })
+      end
+    end
+
+    context 'antenne avec 3 sujets sujets dont deux sans expert OK' do
+      let!(:expert) { create :expert_with_users, antenne: antenne }
+      let!(:subject_1) { create :subject }
+      let!(:subject_2) { create :subject }
+      let!(:subject_3) { create :subject }
+      let!(:institution_subject_1) { create :institution_subject, institution: institution, subject: subject_1}
+      let!(:institution_subject_2) { create :institution_subject, institution: institution, subject: subject_2}
+      let!(:institution_subject_3) { create :institution_subject, institution: institution, subject: subject_3}
+      let!(:expert_subject_1) { create :expert_subject, expert: expert, institution_subject: institution_subject_1}
+
+      it 'return hash with antennes and subjects' do
+        expect(institution.antennes_with_subject_with_no_one).to eq({ antenne => [subject_2, subject_3] })
+      end
+    end
+
+    context 'antenne avec plusieurs sujets et tous avec un expert KO' do
+      let(:institution) { create :institution }
+      let!(:expert) { create :expert_with_users, antenne: antenne }
+      let!(:subject_1) { create :subject }
+      let!(:subject_2) { create :subject }
+      let!(:institution_subject_1) { create :institution_subject, institution: institution, subject: subject_1}
+      let!(:institution_subject_2) { create :institution_subject, institution: institution, subject: subject_2}
+      let!(:expert_subject_1) { create :expert_subject, expert: expert, institution_subject: institution_subject_1}
+      let!(:expert_subject_2) { create :expert_subject, expert: expert, institution_subject: institution_subject_2}
+
+      it 'return empty hash' do
+        expect(institution.antennes_with_subject_with_no_one).to eq({})
+      end
+    end
+  end
 end

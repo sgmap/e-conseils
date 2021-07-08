@@ -92,4 +92,23 @@ class Institution < ApplicationRecord
       self.slug = name.parameterize.underscore
     end
   end
+
+  def antennes_with_subject_with_no_one
+    result = {}
+    antennes.each do |antenne|
+      institutions_subjects.each do |i_subject|
+        experts_subjects = ExpertSubject.where(institution_subject: i_subject, expert: [antenne.experts])
+        # des fois ça ne trouve personne alors qu'il y a quelqu'un dans le tableau sur /annuaire/institutions/cci/conseillers
+        # exemple pour l'antenne 152 de la CCI
+        # institution subject 195
+        # expert 382
+        # le problème viens du tableau ou d'ici ?
+        if experts_subjects.blank?
+          result[antenne] ||= []
+          result[antenne] << i_subject.subject
+        end
+      end
+    end
+    result
+  end
 end

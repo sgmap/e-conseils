@@ -2,7 +2,17 @@
 - content_for :header, render('header', institution: @institution)
 - content_for :menu, render('menu', institution: @institution)
 
+
 .fr-container
+  - if @subjects_with_no_one.present?
+    .fr-callout.fr-fi-information-line
+      %h2.fr-callout__title= t('antennes_with_subjects_with_no_one')
+      - @subjects_with_no_one.each do |antenne, subjects|
+        %h3.fr-text--lg= antenne.to_s
+        %ul
+          - subjects.each do |subject|
+            %li= subject.to_s
+
   = render 'import_buttons'
 
   = render 'table', antennes: @antennes

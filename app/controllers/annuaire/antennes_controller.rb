@@ -6,6 +6,8 @@ module  Annuaire
         .order(:name)
         .preload(:communes)
 
+      @subjects_with_no_one = @institution.antennes_with_subject_with_no_one
+
       respond_to do |format|
         format.html
         format.csv do

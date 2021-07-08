@@ -3,7 +3,7 @@ module  Annuaire
     def index
       authorize Institution, :index?
 
-      @institutions = Institution.all
+      @institutions = Institution.not_deleted
         .order(:slug)
         .preload([institutions_subjects: :theme], :not_deleted_antennes, :advisors)
 
