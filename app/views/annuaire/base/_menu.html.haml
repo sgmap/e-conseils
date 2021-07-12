@@ -1,10 +1,4 @@
-%ul.fr-sidemenu__list
-  %li.fr-sidemenu__item
-    = active_link_to Institution.human_attribute_name(:subjects), institution_subjects_path(institution),
-      { class: 'fr-sidemenu__link', class_active: 'fr-sidemenu__item--active' }
-  %li.fr-sidemenu__item
-    = active_link_to Institution.human_attribute_name(:antennes), institution_antennes_path(institution),
-      { class: 'fr-sidemenu__link', class_active: 'fr-sidemenu__item--active' }
-  %li.fr-sidemenu__item
-    = active_link_to Institution.human_attribute_name(:advisors), institution_advisors_path(institution),
-      { class: 'fr-sidemenu__link', class_active: 'fr-sidemenu__item--active' }
+%ul.fr-tabs__list{"aria-label" => "Menu annuaire", role: "tablist"}
+  = render 'menu_link', institution: institution, key: :subjects
+  = render 'menu_link', institution: institution, key: :antennes
+  = render 'menu_link', institution: institution, key: :advisors

@@ -2,7 +2,6 @@
 - content_for :header, render('header', institution: @institution, antenne: @antenne)
 - content_for :menu, render('menu', institution: @institution)
 
-.fr-container
-  = render 'import_buttons' unless application_fullscreen
+= render 'import_buttons' unless application_fullscreen
 
-  = render 'table', institutions_subjects: @institutions_subjects, advisors: @advisors, antenne: @antenne
+= render 'table', institutions_subjects: @institutions_subjects, advisors: @advisors, antenne: @antenne

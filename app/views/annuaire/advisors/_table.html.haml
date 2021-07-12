@@ -1,85 +1,67 @@
-%table.ui.definition.celled.table
-  %thead
-    -# For the subjects columns, we'll build our header on 3 rows: theme, subject and institutions_subject.
-    - grouped_subjects = institutions_subjects.group_by(&:theme).transform_values{ |is| is.group_by(&:subject) }
-    %tr
-      -# The first 3 columns are for the antenne, team, and user names, spanning the 4 header rows.
-      %th{ rowspan: 4 }
-      %th{ rowspan: 4 }= User.human_attribute_name(:team_full_name)
-      %th{ rowspan: 4 }= User.human_attribute_name(:user)
-      -# Subjects columns, first row: the themes, column-spanned for the two remaining header rows
-      - grouped_subjects.each do |theme, subjects|
-        %th{ colspan: subjects.values.sum(&:size) }= theme.label
-    %tr
-      %th.rowspanned
-      %th.rowspanned
-      %th.rowspanned
-      -# Subjects columns, first row: the subjects, column-spanned for the remaining header row
-      - grouped_subjects.each_value do |subjects|
-        - subjects.each do |subject, institutions_subjects|
-          %th{ colspan: institutions_subjects.size }= subject.label
-    %tr
-      %th.rowspanned
-      %th.rowspanned
-      %th.rowspanned
-      -# Subjects columns, third and last row: the institutions_subjects.
-      - grouped_subjects.each_value do |subjects|
-        - subjects.each_value do |institutions_subjects|
-          - institutions_subjects.each do |institution_subject|
-            %th= institution_subject.description
-    %tr.advisors-count
-      %th.rowspanned
-      %th.rowspanned
-      %th.rowspanned
-      - institutions_subjects.each do |institution_subject|
-        - experts = institution_subject.not_deleted_experts
-        - if local_assigns[:antenne]
-          - experts &= antenne.experts
-        - count = experts.size
-        %th.right.aligned{ title: t('.experts_on_subject', count: count) }
-          - if count.zero?
-            %i.red.ri-error-warning-fill
-          = count
-  %tbody
-    -# `advisors` contains multiple rows for the same users, for each of their team. (See User.relevant_for_skills)
-      We’ll group by Antenne and by Expert team, and span the first two columns as needed.
-    - grouped_advisors = advisors.group_by(&:antenne).transform_values{ |users| users.group_by(&:relevant_expert) }
-    - grouped_advisors.each do |antenne, teams|
-      - teams.each_with_index do |key_and_value, index_in_antenne|
-        - advisors = key_and_value.last
-        - advisors.each_with_index do |user, index_in_team|
-          - highlighted_ids = flash[:table_highlighted_ids]
-          %tr{ class: highlighted_ids&.include?(user.id) ? 'blue' : '' }
-            - if index_in_antenne == 0 && index_in_team == 0
-              %td{ rowspan: teams.values.sum(&:size) }
-                = link_to antenne, institution_antenne_advisors_path(antenne_id: antenne, params: (application_fullscreen ? { fullscreen: true } : {}))
-            - else
-              %td.rowspanned
-            - if index_in_team == 0
-              %td{ rowspan: advisors.size }
-                - if user.relevant_expert.team?
-                  %a.popup-hover.dashed= user.relevant_expert.full_name
-                  .ui.popup= person_block(user.relevant_expert)
-            - else
-              %td.rowspanned
-            %td
-              %a.popup-hover.dashed= user.full_name
-              .ui.popup= person_block(user)
-            - if index_in_team == 0
-              - institutions_subjects.each do |institution_subject|
-                -# We’re using `&` instead of .merge to use the preloaded relations instead of doing a new DB query.
-                - experts_subjects = user.relevant_expert.experts_subjects & institution_subject.experts_subjects
-                - raise 'There should only be one ExpertSubject' if experts_subjects.size > 1
-                - expert_subject = experts_subjects.first
-                -# The InstitutionSubjects cells themselves are spanned on all the rows of the members of the expert team.
-                %td{ rowspan: advisors.size, class: ('yellow' if expert_subject.present?) }
-                  - if expert_subject.present?
-                    - intervention_criteria = expert_subject.intervention_criteria
-                    - if intervention_criteria.present?
-                      %a.popup-hover.dashed= t('yes')
-                      .ui.popup= intervention_criteria
-                    - else
-                      = t('yes')
-            - else
-              - institutions_subjects.size.times do
-                %td.rowspanned
+-# .fr-table.fr-table--bordered.fr-table--c-sm.fr-table--c-annuaire
+.fr-table--c-annuaire
+
+  %table
+    %thead
+      -# For the subjects columns, we'll build our header on 3 rows: theme, subject and institutions_subject.
+      - grouped_subjects = institutions_subjects.group_by(&:theme).transform_values{ |is| is.group_by(&:subject) }
+      %tr
+        -# The first 3 columns are for the antenne, team, and user names, spanning the 4 header rows.
+        %th{ rowspan: 4 }
+        %th{ rowspan: 4 }= User.human_attribute_name(:team_full_name)
+        %th{ rowspan: 4 }= User.human_attribute_name(:user)
+        -# Subjects columns, first row: the themes, column-spanned for the two remaining header rows
+        - grouped_subjects.each do |theme, subjects|
+          %th{ colspan: subjects.values.sum(&:size) }= theme.label
+      %tr.subjects
+        -# Subjects columns, first row: the subjects, column-spanned for the remaining header row
+        - grouped_subjects.each_value do |subjects|
+          - subjects.each do |subject, institutions_subjects|
+            %th{ colspan: institutions_subjects.size, title: subject.label }= subject.label.truncate(30)
+      %tr.advisors-count
+        - institutions_subjects.each do |institution_subject|
+          - experts = institution_subject.not_deleted_experts
+          - if local_assigns[:antenne]
+            - experts &= antenne.experts
+          - count = experts.size
+          %th.right.aligned{ title: t('.experts_on_subject', count: count) }
+            - if count.zero?
+              %i.red.ri-error-warning-fill
+            = count
+    %tbody
+      -# `advisors` contains multiple rows for the same users, for each of their team. (See User.relevant_for_skills)
+        We’ll group by Antenne and by Expert team, and span the first two columns as needed.
+      - grouped_advisors = advisors.group_by(&:antenne).transform_values{ |users| users.group_by(&:relevant_expert) }
+      - grouped_advisors.each do |antenne, teams|
+        - teams.each_with_index do |key_and_value, index_in_antenne|
+          - advisors = key_and_value.last
+          - advisors.each_with_index do |user, index_in_team|
+            - highlighted_ids = flash[:table_highlighted_ids]
+            - team_first_row = index_in_antenne == 0 && index_in_team == 0
+            - team_separation_class = team_first_row ? 'tr--distinct' : ''
+            - highlihted_class = highlighted_ids&.include?(user.id) ? 'blue' : ''
+            %tr{ class: [team_separation_class, highlihted_class].compact.join(" ") }
+              - if team_first_row
+                %td.td-header{ rowspan: teams.values.sum(&:size) }
+                  = link_to antenne, institution_antenne_advisors_path(antenne_id: antenne)
+              - if index_in_team == 0
+                %td.td-header{ rowspan: advisors.size }
+                  - if user.relevant_expert.team?
+                    = render 'shared/tooltip', person: user.relevant_expert, key: 'expert'
+              %td.td-header.td-advisor
+                = render 'shared/tooltip', person: user, key: 'advisor'
+              - if index_in_team == 0
+                - institutions_subjects.each do |institution_subject|
+                  -# We’re using `&` instead of .merge to use the preloaded relations instead of doing a new DB query.
+                  - experts_subjects = user.relevant_expert.experts_subjects & institution_subject.experts_subjects
+                  - raise 'There should only be one ExpertSubject' if experts_subjects.size > 1
+                  - expert_subject = experts_subjects.first
+                  -# The InstitutionSubjects cells themselves are spanned on all the rows of the members of the expert team.
+                  %td{ rowspan: advisors.size, class: ('yellow' if expert_subject.present?) }
+                    - if expert_subject.present?
+                      - intervention_criteria = expert_subject.intervention_criteria
+                      - if intervention_criteria.present?
+                        %a.popup-hover.dashed= t('yes')
+                        .ui.popup= intervention_criteria
+                      - else
+                        = t('yes')

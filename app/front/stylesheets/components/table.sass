@@ -6,3 +6,45 @@
   p
     line-height: 1.25rem
     margin: 0
+
+.fr-table--c-annuaire
+  margin-bottom: 2.5rem
+  table
+    border-spacing: 0
+    td, th
+      padding: 0.75rem
+      text-align: left
+      vertical-align: middle
+      display: table-cell
+      font-size: 0.875rem
+      line-height: 1.5rem
+    tbody
+      td
+        border-left: 1px solid rgba(34,36,38,0.1)
+        border-bottom: 1px solid rgba(34,36,38,0.1)
+        &.td-header
+          left: 0
+          position: sticky
+          background-color: rgb(247, 247, 247) // same color as the initial rgba(0, 0, 0, 0.03), but opaque
+    th, td.td-header
+      position: sticky
+      top: 0
+      border-left: 0.125rem solid #6a6a6a
+      border-bottom: 0.125rem solid #6a6a6a
+      border-left: 0.125rem solid var(--g600)
+      border-bottom: 0.125rem solid var(--g600)
+      background-color: #f9f8f6
+      background-color: var(--beige)
+      color: var(--g700)
+      font-weight: 700
+    thead tr.subjects th
+      top: 64px
+    thead tr.advisors-count th
+      top: 191px
+    th
+      z-index: 2
+    td.td-advisor
+      border-right: 0.125rem solid #6a6a6a
+      border-rihgt: 0.125rem solid var(--g600)
+    .tr--distinct:not(:first-child) td
+      border-top: 4px solid rgba(34,36,38,0.1)
