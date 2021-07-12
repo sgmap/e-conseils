@@ -1,0 +1,15 @@
+-# Custom Title / Tabs Menu / Content layout
+  Based on the main application layout
+
+- content_for :content do
+  .fr-container.fr-pb-6w
+    = yield :header
+
+  .fr-tabs--c-annuaire
+    = yield :menu
+
+  .fr-tabs--c-annuaire__panel
+    = yield
+
+- @wide_layout = true
+= render template: 'layouts/application'

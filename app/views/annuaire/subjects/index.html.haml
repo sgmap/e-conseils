@@ -2,6 +2,5 @@
 - content_for :header, render('header', institution: @institution)
 - content_for :menu, render('menu', institution: @institution)
 
-.fr-container
-  = render 'table', institutions_subjects: @institutions_subjects
+= render 'table', institutions_subjects: @institutions_subjects
 
